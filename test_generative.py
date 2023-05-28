@@ -1,11 +1,22 @@
 from __future__ import annotations
 import unittest
-from generative import flatten_image, unflatten_image, check_adjacent_for_one, pixel_flip, write_image, generate_new_images
+from generative import flatten_image, unflatten_image, check_adjacent_for_one, pixel_flip, write_image, generate_new_images, get_changed_pixels
 from ai import read_image
 
 
 class TestGenerative(unittest.TestCase):
     """Unit tests for the module generative.py"""
+
+
+    # def tst(self):
+    #     mock what you need to mock
+
+    #     expected = something
+
+    #     actual = something
+
+    #     check actual is expected
+
 
     def test_flatten_image(self) -> None:
         """
@@ -64,7 +75,7 @@ class TestGenerative(unittest.TestCase):
         """
         Verify output of check_adjacent_for_one for three different pixel indexes of an image representing different scenarios.
         """
-        test_image =    [0, 1, 1, 
+        test_image =   [0, 1, 1, 
                         0, 0, 0, 
                         1, 0, 0]
 
@@ -149,8 +160,6 @@ class TestGenerative(unittest.TestCase):
 
 
 
-
-
     def test_generate_new_images(self) -> None:
         """
         Verify generate_new_images with image.txt and for each image of the generated images verify that:
@@ -161,21 +170,36 @@ class TestGenerative(unittest.TestCase):
         """
         test_image = read_image('image.txt')
 
+        # generating images with budget of 2 and the image in image.txt
         generate_images = generate_new_images(test_image, 2)
 
-        for image in generate_images:
 
-            # check length of image is 28
+
+        
+        for image in generate_images:
+            
+
+            # check length of each 2D image is 28
             self.assertEqual(len(image), 28)
-            # checking length of rows are 28
+            # checking length of rows of each 2D image is 28
             self.assertTrue(all(len(row) == 28 for row in image))
             
             # check if values of each pixel are 0s or 1s
             for row in image:
                 for value in row:
+                    #if the value is either 0 or 1 assert True
                     self.assertTrue(value in [0, 1])
 
+            
+            # check pixels flipped had an adjacent one by using the def get_changed_pixels
+            changed_pixels = get_changed_pixels(test_image, image)
+            for pixel in changed_pixels:
+                self.assertTrue(check_adjacent_for_one(flatten_image(test_image), pixel))
+                
+                # Check if number of flipped pixels is within the budget for each pixel
+                self.assertFalse(len(changed_pixels) > 2)
 
+                    
 
 if __name__ == "__main__":
     unittest.main()
